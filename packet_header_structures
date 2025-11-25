@@ -293,29 +293,30 @@ Checksum (2 bytes)
 
 
 ################################################################################
-                          ICMP (Echo Request/Reply)
+                           ICMP (Echo Request / Reply)
 ################################################################################
 +---------------+---------------+-------------------------------+
 |     Type      |      Code     |           Checksum            |
 +---------------+---------------+-------------------------------+
-|           Rest of Header (32 bits, message specific)          |
+|           Rest of Header (Identifier + Sequence Number)       |
 +---------------------------------------------------------------+
-|                    (추가 데이터 / Payload ...)                   |
+|                    (Payload: Ping Data ...)                   |
 +---------------------------------------------------------------+
 
-Type (1 byte)  
-예시 → 8(Ping 요청), 0(Ping 응답)
+Type (1 byte): ICMP 메시지 종류  
+예시 → 8(Echo Request), 0(Echo Reply)
 
-Code (1 byte)  
-예시 → 0
+Code (1 byte): 타입 내 세부 코드  
+예시 → 0 (Echo Request/Reply는 항상 0)
 
-Checksum (2 bytes)
+Checksum (2 bytes): ICMP 헤더 + 데이터 오류 검출  
+예시 → 0xf2b1
 
-Rest of Header (4 bytes)  
-예시 → Identifier + Sequence Number
+Rest of Header (4 bytes): Identifier(2 bytes) + Sequence Number(2 bytes)  
+예시 → Identifier=0x1f2b, Sequence=0x0001
 
-Payload (가변 길이)  
-예시 → ping 테스트 데이터
+Payload (가변 길이): Ping 테스트 데이터  
+예시 → "abcdefghijklmnop..." (56 bytes)
 
 
 ################################################################################
