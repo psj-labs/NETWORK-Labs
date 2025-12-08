@@ -1,4 +1,4 @@
-## 1. IPv6 기본 개념
+## IPv6 기본 개념
 
 IPv6는 **IPv4 주소 고갈 문제 해결과 네트워크 구조 단순화**를 위해 등장한 차세대 IP 프로토콜이다.
 
@@ -11,7 +11,7 @@ IPv6는 **IPv4 주소 고갈 문제 해결과 네트워크 구조 단순화**를
 예)  
 2001:0db8:0000:0000:0000:0000:0000:0001
 
-## 2. IPv6 주소 압축 규칙
+## IPv6 주소 압축 규칙
 
 압축 규칙
 
@@ -24,7 +24,7 @@ IPv6는 **IPv4 주소 고갈 문제 해결과 네트워크 구조 단순화**를
 → 2001:db8:0:0:0:0:0:1  
 → 2001:db8::1
 
-## 3. IPv6 특수 주소
+## IPv6 특수 주소
 
 ### ■ 불특정 주소 (Unspecified Address)
 표기 : `::`
@@ -72,7 +72,7 @@ IPv4 대응 : `127.0.0.1`
 ff02::1 → 모든 노드  
 ff02::2 → 모든 라우터  
 
-## 4. IPv6 주소 유형
+## IPv6 주소 유형
 
 ### ■ Unicast (유니캐스트)
 
@@ -94,7 +94,7 @@ ff02::2 → 모든 라우터
 - Google DNS (8.8.8.8)
 - Cloudflare DNS (1.1.1.1)
 
-## 5. IPv6 주소 할당 방식
+## IPv6 주소 할당 방식
 
 ### ■ SLAAC(Stateless Address Autoconfiguration)
 - #### "SLAAC는 IPv6에서 “라우터 광고(RA)만 받고 DHCP 없이 스스로 IP 주소를 자동 생성하는 방식”이다."
@@ -104,16 +104,43 @@ ff02::2 → 모든 라우터
 - DHCP 서버 불필요
 - 단말 자율 주소 생성
 
----
 
-### ■ DHCPv6
+## MLD (Multicast Listener Discovery)
+
+- #### "MLD는 IPv6에서 멀티캐스트 그룹 수신 여부를 관리하는 프로토콜이다."
+
+- ICMPv6 기반 멀티캐스트 관리
+- IPv4의 IGMP에 해당
+- 단말이 수신 가입 여부를 라우터에 통지
+- 불필요한 멀티캐스트 트래픽 차단
+
+
+동작 구조
+```text
+[ Router ] ---- MLD Query ----> [ Host ]
+[ Host ]   ---- MLD Report ---> [ Router ]
+[ Host ]   ---- MLD Done -----> [ Router ]
+```
+
+메시지 종류
+
+- Query  : 라우터 → 단말 (그룹 수신자 존재 여부 질의)
+- Report : 단말 → 라우터 (해당 그룹 수신 의사 표시)
+- Done   : 단말 → 라우터 (그룹 탈퇴 통지)
+
+
+버전
+
+- MLDv1 : 기본 그룹 관리
+- MLDv2 : 소스 기반 멀티캐스트(SFM) 지원
+
+## DHCPv6
 
 - IPv4 DHCP와 동일 개념
 - 중앙 서버에서 주소 할당 관리
 
----
 
-### ■ Dual Stack
+## Dual Stack
 - #### Dual Stack은 “한 네트워크 장비가 IPv4와 IPv6를 동시에 운용하는 공존 전환 방식”이다.
 - - Dual Stack은 한 장비가 IPv4와 IPv6 두 프로토콜을 동시에 온전히 수행하는 하이브리드 공존 구조다.
 - (IPv6 패킷이 IPv4 구간을 통과할 때는 Dual Stack이 아니라 터널링 방식으로 IPv4 헤더 안에 캡슐화 된다)
@@ -121,7 +148,7 @@ ff02::2 → 모든 라우터
 - IPv4 + IPv6 동시 사용
 - 현재 실무 표준 운영 구조
 
-## 6. IPv6 기본 헤더 구조
+## IPv6 기본 헤더 구조
 
 IPv6 헤더 길이 : **고정 40 Byte**
 
@@ -144,7 +171,7 @@ IPv6 헤더 길이 : **고정 40 Byte**
 - Fragment는 송신자 단독 수행
 - 라우터 Fragment 금지
 
-## 7. 확장 헤더
+## 확장 헤더
 
 옵션 기능은 확장 헤더로 분리
 
@@ -176,7 +203,7 @@ IPv6 Header
 → Ext Header  
 → 상위 프로토콜(TCP/UDP/ICMPv6)
 
-## 8. ICMPv6
+## ICMPv6
 
 IPv6 제어 전담 프로토콜
 
@@ -191,7 +218,7 @@ IPv6 제어 전담 프로토콜
 
 → **IPv6 통신 필수 코어 프로토콜**
 
-## 9. Flow Label
+## Flow Label
 
  ```text
 
@@ -215,7 +242,7 @@ IPv6 기본 헤더(40 bytes)
 Flow Label 자체는  
 세션, 연결 상태 관리 기능 없음
 
-## 10. NAT
+## NAT
 
 IPv6는 **NAT 기본 비사용**
 
@@ -223,7 +250,7 @@ IPv6는 **NAT 기본 비사용**
 - 종단 간 연결(End-to-End) 복원
 - **방화벽 필수 설계**
 
-## 11. DNS + Anycast
+## DNS + Anycast
 
 DNS 서버는 Anycast 구조 채택
 
@@ -239,7 +266,7 @@ DNS 서버는 Anycast 구조 채택
 - DDoS 분산
 - 장애 자동 회피
 
-## 12. 보안 포인트
+## 보안 포인트
 
 IPv6 주요 공격 벡터
 
