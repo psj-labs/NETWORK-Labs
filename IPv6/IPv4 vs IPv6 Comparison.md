@@ -49,14 +49,14 @@ IPv6
 - 송신자만 Fragment Header로 분할
 - 반드시 PMTUD 사용
 
-# 4. 경로 MTU 탐색 (PMTUD)
-```text
+## 4. 경로 MTU 탐색 (PMTUD)
+
 | 항목 | IPv4 | IPv6 |
-|------|------|------|
+|:---:|:---:|:---:|
 | 필수 여부 | 선택 | **필수** |
-| ICMP 메시지 | Type3 Code4 | ICMPv6 Packet Too Big |
+| ICMP 메시지 | `Type 3 Code 4` | `ICMPv6 Packet Too Big` |
 | 실패 위험 | 있음 | 있음 |
-```
+
 # 5. 주소 할당 방식
 
 IPv4
