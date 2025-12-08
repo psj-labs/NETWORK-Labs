@@ -1,173 +1,226 @@
+## 1. IPv6 기본 개념
 
-## 1. ICMPv6의 역할
+IPv6는 **IPv4 주소 고갈 문제 해결과 네트워크 구조 단순화**를 위해 등장한 차세대 IP 프로토콜이다.
 
-IPv6에서 ICMPv6는 **선택이 아닌 필수 코어 프로토콜**이다.
+**한줄 정의**  
+→ **IPv6는 “128bit 주소를 사용해 거의 무한한 단말 연결을 가능하게 만든 차세대 인터넷 프로토콜”이다.**
 
-IPv4 시절에는  
-- ICMP → 오류 보고 / 진단  
-- ARP → MAC 주소 탐색  
-- 여러 제어 기능이 분산되어 있었다.
+주소 길이 : **128bit (16 Byte)**  
+표기법 : **16진수 4자리 단위 8블록, `:` 구분**
 
-IPv6에서는  
-→ **ICMPv6 하나로 통합**되어 모든 제어 기능을 담당한다.
+예)  
+2001:0db8:0000:0000:0000:0000:0000:0001
 
-기능:
-- 오류 보고
-- 네트워크 진단 (`ping`, `traceroute`)
-- **PMTUD (Path MTU Discovery)**
-- **NDP 수행 (ARP 완전 대체)**
-- **라우터 탐색 및 자동 주소 구성(SLAAC)**
+## 2. IPv6 주소 압축 규칙
 
-> ICMPv6 차단 시 IPv6 네트워크는 정상적으로 작동하지 않는다.
+압축 규칙
 
-## 2. ICMPv6 패킷 구조
+① 각 블록의 **선행 0 제거 가능**  
+② 연속된 0 블록은 `::`로 **1회만 압축 가능**
 
-ICMPv6는 IPv6의 상위 프로토콜이며,  
-IPv6 Header의 **Next Header 값 = 58**일 때 ICMPv6임을 의미한다.
+예)
 
-[ IPv6 Header ]  
- └─ Next Header = 58 (ICMPv6)  
-      ↓  
-[ ICMPv6 Header ]  
- ├ Type (8bit)   → 메시지 종류 분류  
- ├ Code (8bit)   → 세부 원인 식별  
- ├ Checksum (16bit)  
- └ Message Body (가변)
+2001:0db8:0000:0000:0000:0000:0000:0001  
+→ 2001:db8:0:0:0:0:0:1  
+→ 2001:db8::1
 
-**Type** = 메시지 대분류 ID  
-**Code** = 해당 Type 내부 세부 세분화
+## 3. IPv6 특수 주소
 
-※ 기본 헤더 구조는 IPv4 ICMP와 **완전히 동일**  
-※ 단, ICMPv6 체크섬 계산에는 **IPv6 Pseudo Header 포함**
+### ■ 불특정 주소 (Unspecified Address)
+표기 : `::`
 
-## 3. ICMPv6 메시지 분류
+의미
+- IPv6 주소 미할당 상태
+- DHCPv6 초기 요청 출발지 주소
 
-ICMPv6는 크게 두 부류로 나뉜다.
-
-1) **Error Messages (오류 메시지)**  
-2) **Informational Messages (정보 / 제어 메시지)**  
-
-## 4. Error Messages
-
-| Type | 이름 |
-|------|------|
-| 1 | Destination Unreachable |
-| 2 | Packet Too Big |
-| 3 | Time Exceeded |
-| 4 | Parameter Problem |
-
-### Type 1 — Destination Unreachable
-목적지에 도달할 수 없을 때 전송된다.
-
-주요 원인:
-- 라우팅 테이블 미존재
-- 방화벽(ACL) 차단
-- 목적지 IPv6 주소 미할당
+IPv4 대응 : `0.0.0.0`
 
 ---
 
-### Type 2 — Packet Too Big
-IPv6 라우터는 **절대 Fragment 불가**.
+### ■ 루프백 주소 (Loopback)
+표기 : `::1`
 
-MTU 초과 시:
-- 패킷 Drop
-- **ICMPv6 Type 2 메시지 송신**
+의미
+- 자기 자신 테스트
 
-송신 Host:
-- MTU 크기 축소
-- 재전송 수행
-
-→ **PMTUD 작동 핵심 메시지**
-
----
-
-### Type 3 — Time Exceeded
-Hop Limit 초과 시 발생  
-→ Traceroute 동작 원리  
-(IPv4 TTL 초과와 동일 개념)
-
----
-
-### Type 4 — Parameter Problem
-IPv6 기본 헤더 또는 **확장 헤더 문법 오류** 검출 시 전송
-
-## 5. Informational Messages
-
-### Echo (Ping)
-
-| Type | 기능 |
-|------|------|
-| 128 | Echo Request |
-| 129 | Echo Reply |
-
-사용 예:
-ping -6 google.com  
+사용 예  
 ping ::1
 
+IPv4 대응 : `127.0.0.1`
+
 ---
 
-### NDP 관련 메시지
+### ■ 링크 로컬 주소 (Link-Local)
+대역 : `fe80::/10`
 
-| Type | 이름 |
-|------|------|
-| 133 | Router Solicitation (RS) |
-| 134 | Router Advertisement (RA) |
-| 135 | Neighbor Solicitation (NS) |
-| 136 | Neighbor Advertisement (NA) |
-| 137 | Redirect |
+특징
+- 인터페이스 자동 생성
+- 동일 링크 범위 통신 전용
+- 라우터 통과 불가
+- **NDP 기본 통신 주소**
 
-## 6. NDP (Neighbor Discovery Protocol)
+---
 
-IPv6에서 **ARP를 완전히 대체**하는 프로토콜로  
-**ICMPv6 기반으로 동작**한다.
+### ■ 멀티캐스트 주소
+대역 : `ff00::/8`
 
-주요 기능:
-- IPv6 ↔ MAC 주소 매핑
-- 라우터 탐색
-- 이웃 노드 탐지
-- 자동 주소 구성(SLAAC)
-- 중복 주소 검사(DAD)
-- Redirect 기반 최적 경로 통지
+특징
+- IPv4 Broadcast 대체
+- 1:N 그룹 통신
 
-### NDP 동작 과정
+대표 예
 
-1. Host → RS (ff02::2)
-2. Router → RA (Prefix, Gateway 제공)
-3. Host → SLAAC 주소 생성
-4. Host → NS 송신 (DAD 검사)
-5. 충돌 없으면 IPv6 주소 활성화
+ff02::1 → 모든 노드  
+ff02::2 → 모든 라우터  
 
-## 7. SLAAC 와 ICMPv6
+## 4. IPv6 주소 유형
 
-IPv6 자동 주소 설정 절차 전체는 **ICMPv6만으로 구성**된다.
+### ■ Unicast (유니캐스트)
 
-순서:
+1:1 통신
 
-RA 수신  
-→ Prefix 획득  
-→ Interface ID 생성  
-→ IPv6 주소 조합  
-→ NS 전송 (DAD 검사)  
-→ 중복 없으면 사용 승인
+---
 
-## 8. 보안 관점 주요 공격
+### ■ Multicast (멀티캐스트)
 
-IPv6 환경 핵심 공격 벡터
+1:N 그룹 통신
+
+---
+
+### ■ Anycast (애니캐스트)
+
+동일 주소를 여러 노드에 할당 후  
+**라우팅 기준 가장 가까운 노드 1곳으로 전달**
+
+사용 예
+- Root DNS
+- Google DNS (8.8.8.8)
+- Cloudflare DNS (1.1.1.1)
+
+## 5. IPv6 주소 할당 방식
+
+### ■ SLAAC
+
+- ICMPv6 RA 기반 자동 주소 설정
+- DHCP 서버 불필요
+- 단말 자율 주소 생성
+
+---
+
+### ■ DHCPv6
+
+- IPv4 DHCP와 동일 개념
+- 중앙 서버에서 주소 할당 관리
+
+---
+
+### ■ Dual Stack
+
+- IPv4 + IPv6 동시 사용
+- 현재 실무 표준 운영 구조
+
+## 6. IPv6 기본 헤더 구조
+
+IPv6 헤더 길이 : **고정 40 Byte**
+
+[ IPv6 Header ]
+────────────────────────────────────────────────────────────
+| Version | Traffic Class |       Flow Label (20bit)       |
+────────────────────────────────────────────────────────────
+| Payload Length | Next Header | Hop Limit                 |
+────────────────────────────────────────────────────────────
+|                 Source IPv6 Address                      |
+────────────────────────────────────────────────────────────
+|               Destination IPv6 Address                   |
+────────────────────────────────────────────────────────────
+
+특징
+
+- 헤더 체크섬 제거
+- 옵션 제거 → **확장 헤더 체계 도입**
+- Fragment는 송신자 단독 수행
+- 라우터 Fragment 금지
+
+## 7. 확장 헤더
+
+옵션 기능은 확장 헤더로 분리
+
+대표 확장 헤더
+
+- Hop-by-Hop Options
+- Routing Header
+- Fragment Header
+- Destination Options
+- Authentication Header (AH)
+- ESP (IPsec)
+
+**체인 구조**
+
+IPv6 Header  
+→ Ext Header  
+→ Ext Header  
+→ 상위 프로토콜(TCP/UDP/ICMPv6)
+
+## 8. ICMPv6
+
+IPv6 제어 전담 프로토콜
+
+기능
+
+- 오류 보고
+- 네트워크 진단
+- **PMTUD 수행**
+- **NDP 수행 (ARP 대체)**
+- **라우터 탐색**
+- **SLAAC 제어**
+
+→ **IPv6 통신 필수 코어 프로토콜**
+
+## 9. Flow Label
+
+20bit 식별 필드
+
+목적
+
+- 동일 트래픽 흐름 식별
+- QoS 적용
+- 로드밸런싱 보조
+
+주의
+
+Flow Label 자체는  
+세션, 연결 상태 관리 기능 없음
+
+## 10. NAT
+
+IPv6는 **NAT 기본 비사용**
+
+- 모든 단말이 글로벌 유니캐스트 IP 직접 사용
+- 종단 간 연결(End-to-End) 복원
+- **방화벽 필수 설계**
+
+## 11. DNS + Anycast
+
+DNS 서버는 Anycast 구조 채택
+
+구조
+
+동일 IP  
+→ 전 세계 다중 서버 배치  
+→ 최단 거리 서버 자동 선택
+
+효과
+
+- 응답 지연 최소화
+- DDoS 분산
+- 장애 자동 회피
+
+## 12. 보안 포인트
+
+IPv6 주요 공격 벡터
 
 - **RA Spoofing**
-  → 위조 Router Advertisement로 Gateway 조작 (MITM)
-
 - **NDP Spoofing**
-  → ARP Spoof와 동일 개념  
-  → NS/NA 위조 통한 트래픽 가로채기
-
 - **SLAAC Spoofing**
-  → 가짜 Prefix 광고로 주소 설정 교란
-
 - **ICMPv6 Flood**
-  → Echo / RA 메시지 대량 송신  
-  → 네트워크 DoS 유발
-
-- **IPv6 방화벽 누락**
-  → IPv4만 정책 설정한 환경에서  
-     **IPv6 통한 보안 우회 가능**
+- **IPv6 방화벽 정책 미적용 우회**
