@@ -56,6 +56,8 @@ IPv4 대응 : `127.0.0.1`
 - 동일 링크 범위 통신 전용
 - 라우터 통과 불가
 - **NDP 기본 통신 주소**
+- NDP(Neighbor Discovery Protocol)는 IPv6에서 “IP ↔ MAC 주소 매핑 + 라우터 발견 + 주소 중복 검사”를 담당하는 핵심 제어 프로토콜이다.
+
 
 
 ### ■ 멀티캐스트 주소
@@ -94,7 +96,9 @@ ff02::2 → 모든 라우터
 
 ## 5. IPv6 주소 할당 방식
 
-### ■ SLAAC
+### ■ SLAAC(Stateless Address Autoconfiguration)
+- #### "SLAAC는 IPv6에서 “라우터 광고(RA)만 받고 DHCP 없이 스스로 IP 주소를 자동 생성하는 방식”이다."
+
 
 - ICMPv6 RA 기반 자동 주소 설정
 - DHCP 서버 불필요
@@ -110,6 +114,9 @@ ff02::2 → 모든 라우터
 ---
 
 ### ■ Dual Stack
+- #### Dual Stack은 “한 네트워크 장비가 IPv4와 IPv6를 동시에 운용하는 공존 전환 방식”이다.
+- - Dual Stack은 한 장비가 IPv4와 IPv6 두 프로토콜을 동시에 온전히 수행하는 하이브리드 공존 구조다.
+- (IPv6 패킷이 IPv4 구간을 통과할 때는 Dual Stack이 아니라 터널링 방식으로 IPv4 헤더 안에 캡슐화 된다)
 
 - IPv4 + IPv6 동시 사용
 - 현재 실무 표준 운영 구조
@@ -144,13 +151,25 @@ IPv6 헤더 길이 : **고정 40 Byte**
 대표 확장 헤더
 
 - Hop-by-Hop Options
-- Routing Header
-- Fragment Header
-- Destination Options
-- Authentication Header (AH)
-- ESP (IPsec)
+  → 모든 라우터가 반드시 확인해야 하는 제어용 옵션 전달 헤더
 
+- Routing Header
+  → 패킷이 지나갈 경유지 라우터 경로를 지정하는 헤더
+
+- Fragment Header
+  → IPv6에서 단말이 직접 수행하는 패킷 단편화 정보 헤더
+
+- Destination Options
+  → 최종 목적지 또는 특정 중간 노드에게만 전달할 옵션 정보 헤더
+
+- Authentication Header (AH)
+  → IPsec 인증용 헤더, 송신자 인증 및 무결성 검증 담당
+
+- ESP (IPsec)
+  → IPsec 암호화 헤더, 페이로드 기밀성 보호 + 선택적 무결성 제공
+  
 **체인 구조**
+- #### 체인구조란 IPv6 패킷에서 확장 헤더들이 연결 리스트처럼 순서대로 이어져 최종 상위 프로토콜까지 도달하는 구조다.
 
 IPv6 Header  
 → Ext Header  
@@ -173,6 +192,15 @@ IPv6 제어 전담 프로토콜
 → **IPv6 통신 필수 코어 프로토콜**
 
 ## 9. Flow Label
+
+ ```text
+
+IPv6 기본 헤더(40 bytes)
+┌───────────────┬─────────┬───────────────┐
+│ Version(4)    │ TC(8)   │ Flow Label(20)│
+└───────────────┴─────────┴───────────────┘
+ ```
+
 
 20bit 식별 필드
 
