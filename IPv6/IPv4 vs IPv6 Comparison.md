@@ -9,7 +9,7 @@
 | NAT 필요 | 필수 | 불필요 |
 | 공인 IP | 매우 부족 | 모든 장비 직접 할당 |
 
-IPv6 주소 타입
+IPv6의 주소 타입
 - Global Unicast : 공인 주소
 - Link-Local : 로컬 자동 생성 주소 (fe80::)
 - Unique Local : 사설 주소
