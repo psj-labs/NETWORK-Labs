@@ -2,6 +2,7 @@
 
 #### A routing protocol allows routers to exchange route information and automatically calculate the optimal path based on that information. All documentation is provided in Korean.
 
+![RoutingProtocols](/Routing%20Protocols/RoutingProtocols.png)
 ---
 
 ## 한국어 원문
